@@ -1,5 +1,6 @@
-package ru.job4j;
+package ru.job4j.assertj;
 
+import ru.job4j.assertj.ArrayIt;
 import org.junit.jupiter.api.Test;
 import static org.assertj.core.api.Assertions.*;
 
