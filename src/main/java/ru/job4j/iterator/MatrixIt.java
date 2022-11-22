@@ -20,13 +20,11 @@ public class MatrixIt implements Iterator<Integer> {
             row++;
         }
 
-        int c = row;
-        while (c < data.length && data[c].length == 0) {
-            c++;
+        while (row < data.length && data[row].length == 0) {
+            row++;
         }
 
-        if (c < data.length) {
-            row = c;
+        if (row < data.length) {
             result = column < data[row].length;
         }
         return result;
