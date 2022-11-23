@@ -15,15 +15,10 @@ public class FlatMap<T> implements Iterator<T> {
 
     @Override
     public boolean hasNext() {
-        boolean isContainsElem = cursor.hasNext();
-        while (!isContainsElem && data.hasNext()) {
+        while (!cursor.hasNext() && data.hasNext()) {
             cursor = data.next();
-            if (!cursor.equals(Collections.emptyIterator())) {
-                isContainsElem = true;
-                break;
-            }
         }
-        return isContainsElem;
+        return cursor.hasNext();
     }
 
     @Override
