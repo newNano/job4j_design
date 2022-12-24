@@ -16,13 +16,14 @@ public class SimpleMap<K, V> implements Map<K, V> {
     @Override
     public boolean put(K key, V value) {
         boolean result = true;
-        int hash = hash(Objects.hashCode(key));
-        int bucket = indexFor(hash);
+        int bucket = getBucket(key);
         if (table[bucket] != null) {
             result = false;
         } else {
             changeSize(new MapEntry<>(key, value), bucket, 1);
-            checkSize();
+            if (size >= capacity * LOAD_FACTOR) {
+                expand();
+            }
         }
         return result;
     }
@@ -32,7 +33,10 @@ public class SimpleMap<K, V> implements Map<K, V> {
         boolean rsl = false;
         int hash = hash(Objects.hashCode(key));
         int bucket = indexFor(hash);
-        if (table[bucket] != null) {
+        MapEntry<K, V> entry = table[bucket];
+        if (entry != null
+            && hash(Objects.hashCode(entry.key)) == hash(Objects.hashCode(key))
+            && Objects.equals(entry.key, key)) {
             changeSize(null, bucket, -1);
             rsl = true;
         }
@@ -48,7 +52,7 @@ public class SimpleMap<K, V> implements Map<K, V> {
         if (entry != null) {
             K keyEntry = entry.key;
             int hashEntry = hash(Objects.hashCode(keyEntry));
-            if (hashEntry == hash && (Objects.equals(key, keyEntry))) {
+            if (hashEntry == hash && Objects.equals(key, keyEntry)) {
                 value = entry.value;
             }
         }
@@ -61,10 +65,8 @@ public class SimpleMap<K, V> implements Map<K, V> {
         modCount++;
     }
 
-    private void checkSize() {
-        if (size >= capacity * LOAD_FACTOR) {
-            expand();
-        }
+    private int getBucket(K key) {
+        return indexFor(hash(Objects.hashCode(key)));
     }
 
     private int hash(int hashCode) {
@@ -80,9 +82,7 @@ public class SimpleMap<K, V> implements Map<K, V> {
         MapEntry<K, V>[] newTable = new MapEntry[capacity];
         for (MapEntry<K, V> entry : table) {
             if (entry != null) {
-                K k = entry.key;
-                int hash = hash(Objects.hashCode(k));
-                int bucket = indexFor(hash);
+                int bucket = getBucket(entry.key);
                 newTable[bucket] = entry;
             }
         }
