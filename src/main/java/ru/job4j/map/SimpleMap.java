@@ -3,6 +3,7 @@ package ru.job4j.map;
 import java.util.ConcurrentModificationException;
 import java.util.Iterator;
 import java.util.NoSuchElementException;
+import java.util.Objects;
 
 public class SimpleMap<K, V> implements Map<K, V> {
 
@@ -14,18 +15,56 @@ public class SimpleMap<K, V> implements Map<K, V> {
 
     @Override
     public boolean put(K key, V value) {
-        int hash = (key == null) ? hash(0) : hash(key.hashCode());
+        boolean result = true;
+        int hash = hash(Objects.hashCode(key));
         int bucket = indexFor(hash);
         if (table[bucket] != null) {
-            return false;
+            result = false;
+        } else {
+            changeSize(new MapEntry<>(key, value), bucket, 1);
+            checkSize();
         }
-        table[bucket] = new MapEntry<>(key, value);
-        size++;
+        return result;
+    }
+
+    @Override
+    public boolean remove(K key) {
+        boolean rsl = false;
+        int hash = hash(Objects.hashCode(key));
+        int bucket = indexFor(hash);
+        if (table[bucket] != null) {
+            changeSize(null, bucket, -1);
+            rsl = true;
+        }
+        return rsl;
+    }
+
+    @Override
+    public V get(K key) {
+        V value = null;
+        int hash = hash(Objects.hashCode(key));
+        int bucket = indexFor(hash);
+        MapEntry<K, V> entry = table[bucket];
+        if (entry != null) {
+            K keyEntry = entry.key;
+            int hashEntry = hash(Objects.hashCode(keyEntry));
+            if (hashEntry == hash && (Objects.equals(key, keyEntry))) {
+                value = entry.value;
+            }
+        }
+        return value;
+    }
+
+    private void changeSize(MapEntry<K, V> entry, int bucket, int c) {
+        table[bucket] = entry;
+        size = size + c;
         modCount++;
+    }
+
+    private void checkSize() {
         if (size >= capacity * LOAD_FACTOR) {
             expand();
         }
-        return true;
     }
 
     private int hash(int hashCode) {
@@ -42,43 +81,12 @@ public class SimpleMap<K, V> implements Map<K, V> {
         for (MapEntry<K, V> entry : table) {
             if (entry != null) {
                 K k = entry.key;
-                int hash = (k == null) ? hash(0) : hash(k.hashCode());
+                int hash = hash(Objects.hashCode(k));
                 int bucket = indexFor(hash);
                 newTable[bucket] = entry;
             }
         }
         table = newTable;
-    }
-
-    @Override
-    public V get(K key) {
-        V value = null;
-        int hash = (key == null) ? hash(0) : hash(key.hashCode());
-        int bucket = indexFor(hash);
-        MapEntry<K, V> entry = table[bucket];
-        if (entry != null) {
-            K keyEntry = entry.key;
-            int hashEntry = (keyEntry == null) ? hash(0) : hash(keyEntry.hashCode());
-            if (hashEntry == hash
-                    && (key == keyEntry || (key != null && key.equals(keyEntry)))) {
-                value = entry.value;
-            }
-        }
-        return value;
-    }
-
-    @Override
-    public boolean remove(K key) {
-        boolean rsl = false;
-        int hash = (key == null) ? hash(0) : hash(key.hashCode());
-        int bucket = indexFor(hash);
-        if (table[bucket] != null) {
-            table[bucket] = null;
-            rsl = true;
-            size--;
-            modCount++;
-        }
-        return rsl;
     }
 
     @Override
