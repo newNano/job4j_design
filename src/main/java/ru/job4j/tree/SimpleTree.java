@@ -10,6 +10,7 @@ public class SimpleTree<E> implements Tree<E> {
 
     public SimpleTree(final E root) {
         this.root = new Node<>(root);
+        System.out.println();
     }
 
     @Override
