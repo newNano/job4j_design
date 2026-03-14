@@ -2,7 +2,6 @@ package ru.job4j.io;
 
 import java.io.*;
 import java.util.ArrayList;
-import java.util.Collections;
 import java.util.List;
 
 public class LogFilter {
@@ -17,7 +16,7 @@ public class LogFilter {
         try (BufferedReader input = new BufferedReader(new FileReader(file))) {
             input.lines().forEach(str -> {
                 String[] array = str.split(" ");
-                if (array[array.length - 2].equals("404")) {
+                if ("404".equals(array[array.length - 2])) {
                     result.add(str);
                 }
             });
