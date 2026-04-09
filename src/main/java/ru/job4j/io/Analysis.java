@@ -19,7 +19,7 @@ public class Analysis {
                     start = time;
                 } else if (unavailable && isServerUp(status)) {
                     unavailable = false;
-                    out.println(start + ";" + time + ";");
+                    out.printf("%s;%s;%n", start, time);
                 }
             }
         } catch (IOException e) {
